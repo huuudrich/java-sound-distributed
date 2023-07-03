@@ -13,6 +13,7 @@ import com.example.repositorys.UserRepository;
 import com.example.utils.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtils jwtTokenUtils;
     private final UserDetailsService userDetailsService;
+    private final KafkaTemplate<String, User> kafkaTemplate;
 
     @Transactional
     @Override
@@ -54,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
         user.getRoles().add(role);
+
+        kafkaTemplate.send("user_create", user);
 
         return UserMapper.INSTANCE.userToUserDto(userRepository.save(user));
     }
