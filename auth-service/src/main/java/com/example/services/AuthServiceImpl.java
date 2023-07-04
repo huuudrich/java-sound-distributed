@@ -51,14 +51,25 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     public UserDto createNewUser(RegisterUserDto registerUserDto) {
+        String username = registerUserDto.getUsername();
+        String email = registerUserDto.getEmail();
+
+        if (userRepository.existsByUsername(username)) {
+            throw new BadCredentialsException(String.format("The username: %s is already in use", username));
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BadCredentialsException(String.format("The email: %s is already in use", email));
+        }
+
         Role role = roleRepository.getByName(RoleName.ROLE_LISTENER);
         User user = UserMapper.INSTANCE.registerUserDtoToUser(registerUserDto);
-
         user.setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
         user.getRoles().add(role);
 
+        user = userRepository.save(user);
+
         kafkaTemplate.send("user_create", user);
 
-        return UserMapper.INSTANCE.userToUserDto(userRepository.save(user));
+        return UserMapper.INSTANCE.userToUserDto(user);
     }
 }

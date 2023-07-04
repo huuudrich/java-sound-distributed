@@ -1,6 +1,7 @@
 package com.example.controllers;
 
 import com.example.models.jwt.JwtRequest;
+import com.example.models.jwt.JwtResponse;
 import com.example.models.users.RegisterUserDto;
 import com.example.models.users.UserDto;
 import com.example.services.AuthService;
@@ -23,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth")
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
+    public ResponseEntity<JwtResponse> createAuthToken(@RequestBody JwtRequest authRequest) {
         return ResponseEntity.ok(authService.createAuthToken(authRequest));
     }
 
