@@ -13,6 +13,16 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumer {
     private final UserRepository userRepository;
 
+    @KafkaListener(topics = "user_create", groupId = "group_id")
+    public void createUser(User user) {
+        userRepository.save(user);
+    }
+
+    @KafkaListener(topics = "update_user_password", groupId = "group_id")
+    public void updateUserPassword(User user) {
+        userRepository.save(user);
+    }
+
     @KafkaListener(topics = "user_update", groupId = "group_id")
     public void updateUser(User user) {
         userRepository.save(user);
