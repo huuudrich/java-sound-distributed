@@ -1,5 +1,6 @@
 package com.example.mappers;
 
+import com.example.models.jwt.JwtRequest;
 import com.example.models.users.RegisterUserDto;
 import com.example.models.users.User;
 import com.example.models.users.UserDto;
@@ -15,4 +16,6 @@ public interface UserMapper {
     User registerUserDtoToUser(RegisterUserDto registerUserDto);
 
     UserDto userToUserDto(User user);
+
+    JwtRequest userToJwtRequest(User user);
 }
