@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Entity
@@ -32,6 +31,5 @@ public class User implements Serializable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    @Builder.Default
-    Collection<Role> roles = new ArrayList<>();
+    Collection<Role> roles;
 }
