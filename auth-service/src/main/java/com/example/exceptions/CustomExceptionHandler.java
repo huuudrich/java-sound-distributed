@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
+
 @ControllerAdvice
 @Slf4j
 public class CustomExceptionHandler {
@@ -18,6 +20,15 @@ public class CustomExceptionHandler {
         e.getBindingResult().getFieldErrors().forEach(fieldError ->
                 apiError.setMessage(String.format("Error: %s.",
                         fieldError.getDefaultMessage())));
+        apiError.setStatus(HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiError> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.warn("Entity not found error: " + e.getMessage());
+        ApiError apiError = new ApiError();
+        apiError.setMessage(String.format("Error: %s.", e.getMessage()));
         apiError.setStatus(HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
