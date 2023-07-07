@@ -1,7 +1,6 @@
 package com.example.models.users;
 
 import com.example.models.Role;
-import com.example.models.roles.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

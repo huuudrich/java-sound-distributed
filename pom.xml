@@ -20,7 +20,6 @@
         <module>playlist-service</module>
         <module>search-service</module>
         <module>album-service</module>
-        <module>moderation-service</module>
         <module>streaming-service</module>
         <module>user-management-service</module>
     </modules>
