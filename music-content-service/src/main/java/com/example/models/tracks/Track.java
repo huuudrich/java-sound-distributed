@@ -32,7 +32,7 @@ public class Track implements Serializable {
     @ManyToOne
     @JoinColumn(name = "album_id")
     Album album;
-    Long duration;
-    @JoinColumn(name = "file_path", unique = true)
-    String filePath;
+    long duration;
+    @JoinColumn(name = "file_name", unique = true)
+    String fileName;
 }
