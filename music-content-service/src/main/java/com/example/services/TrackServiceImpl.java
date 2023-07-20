@@ -1,6 +1,7 @@
 package com.example.services;
 
 import com.example.mappers.TracksMapper;
+import com.example.models.tracks.NewTrackNameDto;
 import com.example.models.tracks.Track;
 import com.example.models.tracks.TrackDto;
 import com.example.models.users.User;
@@ -13,11 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -31,20 +32,30 @@ public class TrackServiceImpl implements TracksService {
 
     @Transactional
     @Override
-    public List<TrackDto> uploadTracks(Long userId, MultipartFile[] files) throws UnsupportedAudioFileException, IOException {
+    public List<TrackDto> uploadTracks(Long userId, MultipartFile[] files) {
         List<Track> tracks = new ArrayList<>();
         User producer = findUserById(userId);
 
         for (MultipartFile file : files) {
-            tracks.add(fileStorageService.createTrack(file, producer));
+            tracks.add(fileStorageService.storeFile(file, producer));
         }
 
-        tracks = tracksRepository.saveAll(tracks);
+        return TracksMapper.INSTANCE.listTrackToTrackDto(tracksRepository.saveAll(tracks));
+    }
 
-        for (MultipartFile file : files) {
-            fileStorageService.storeFile(file);
+    @Transactional
+    @Override
+    public List<TrackDto> assignNames(List<NewTrackNameDto> newTrackNameDto, Long userId) {
+        Map<Long, String> newTracks = newTrackNameDto
+                .stream()
+                .collect(Collectors.toMap(NewTrackNameDto::getTrackId, NewTrackNameDto::getNewTitle));
+        List<Track> tracks = new ArrayList<>(tracksRepository.getAllByIdInAndProducerId(newTracks.keySet(), userId));
+        log.info(String.format("Подтверждение названия треков пользователем с id: %s", userId));
+        for (Track track : tracks) {
+            track.setTitle(newTracks.get(track.getId()));
         }
-        return TracksMapper.INSTANCE.listTrackToTrackDto(tracks);
+
+        return TracksMapper.INSTANCE.listTrackToTrackDto(tracksRepository.saveAll(tracks));
     }
 
     private User findUserById(Long userId) {

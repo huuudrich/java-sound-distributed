@@ -12,7 +12,7 @@ import java.util.List;
 public interface TracksMapper {
     TracksMapper INSTANCE = Mappers.getMapper(TracksMapper.class);
 
-    @Mapping(target = "producer", source = "track.producer.username")
+    @Mapping(target = "producerId", source = "track.producer.id")
     TrackDto trackToTrackDto(Track track);
 
     List<TrackDto> listTrackToTrackDto(List<Track> tracks);

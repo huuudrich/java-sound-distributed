@@ -43,51 +43,43 @@ public class FileStorageService {
         }
     }
 
-    public void storeFile(MultipartFile file) {
-        // Генерация уникального имени файла
+    public Track storeFile(MultipartFile file, User producer) {
         String fileName = StringUtils.cleanPath(UUID.randomUUID() + "_" + file.getOriginalFilename());
-        try {
-            // Копирование файла в папку хранения
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            throw new FileStorageException("Не удалось сохранить файл " + fileName, ex);
-        }
-    }
 
-    public Track createTrack(MultipartFile file, User producer) throws IOException, UnsupportedAudioFileException {
         if (Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
             throw new FileStorageException("Название трека не может быть пустым");
         }
-        // Определение продолжительности трека
-        long duration = getDurationWithMp3Spi(file.getResource().getFile());
+        try {
+            // Определение продолжительности трека
+            long duration = getDurationWithMp3Spi(file.getResource().getFile());
+            if (duration < 30000) {
+                throw new FileStorageException("Продолжительность трека должна быть больше 30 секунд");
+            }
+            // Копирование файла в папку хранения
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info(String.format("Сохранение файла с названием: %s", fileName));
 
-        return Track.builder()
-                .fileName(file.getOriginalFilename().replace(".mp3", ""))
-                .producer(producer)
-                .title(getTrackName(file.getResource().getFile()))
-                .duration(duration)
-                .build();
+            return Track.builder()
+                    .fileName(fileName)
+                    .producer(producer)
+                    .title(file.getOriginalFilename().replace(".mp3", ""))
+                    .duration(duration)
+                    .build();
+        } catch (IOException ex) {
+            throw new FileStorageException("Не удалось сохранить файл " + fileName, ex);
+        } catch (UnsupportedAudioFileException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static long getDurationWithMp3Spi(File file) throws UnsupportedAudioFileException, IOException {
+    public long getDurationWithMp3Spi(File file) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
         if (fileFormat instanceof TAudioFileFormat) {
             Map<?, ?> properties = fileFormat.properties();
             String key = "duration";
             Long microseconds = (Long) properties.get(key);
             return (int) (microseconds / 1000);
-        } else {
-            throw new UnsupportedAudioFileException();
-        }
-    }
-
-    public static String getTrackName(File file) throws UnsupportedAudioFileException, IOException {
-        AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
-        if (fileFormat instanceof TAudioFileFormat) {
-            Map<?, ?> properties = fileFormat.properties();
-            String key = "title";
-            return (String) properties.get(key);
         } else {
             throw new UnsupportedAudioFileException();
         }

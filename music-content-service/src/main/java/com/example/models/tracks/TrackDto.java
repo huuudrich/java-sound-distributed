@@ -1,6 +1,5 @@
 package com.example.models.tracks;
 
-import com.example.models.albums.Album;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,7 +14,6 @@ import java.util.Date;
 public class TrackDto {
     Long id;
     String title;
-    String producer;
+    Long producerId;
     Date uploadDate;
-    Album album;
 }

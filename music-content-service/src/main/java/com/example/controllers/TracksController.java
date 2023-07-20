@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import com.example.models.tracks.NewTrackNameDto;
 import com.example.models.tracks.TrackDto;
 import com.example.services.TracksService;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +29,8 @@ public class TracksController {
     }
 
     @PostMapping("/assign-names/{userId}")
-    public ResponseEntity<?> assignNames(@RequestBody List<TrackInfo> trackInfos) {
-        for (TrackInfo trackInfo : trackInfos) {
-            // Найти файл по trackInfo.fileId и обновить его имя на trackInfo.trackName
-            Track track = trackService.getTrackByFileId(trackInfo.getFileId());
-            track.setName(trackInfo.getTrackName());
-            trackService.save(track);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<List<TrackDto>> assignNames(@RequestBody List<NewTrackNameDto> trackInfos,
+                                         @PathVariable @Positive Long userId) {
+        return new ResponseEntity<>(tracksService.assignNames(trackInfos, userId), HttpStatus.OK);
     }
 }

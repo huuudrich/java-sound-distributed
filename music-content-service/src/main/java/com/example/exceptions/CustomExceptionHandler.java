@@ -43,4 +43,13 @@ public class CustomExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiError> handleFileStorageException(FileStorageException e) {
+        log.warn("File storage error: " + e.getMessage());
+        ApiError apiError = new ApiError();
+        apiError.setMessage(String.format("Error: %s.", e.getMessage()));
+        apiError.setStatus(HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
 }
