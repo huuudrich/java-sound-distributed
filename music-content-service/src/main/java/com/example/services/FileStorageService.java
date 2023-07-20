@@ -44,22 +44,23 @@ public class FileStorageService {
     }
 
     public Track storeFile(MultipartFile file, User producer) {
-        String fileName = StringUtils.cleanPath(UUID.randomUUID() + "_" + file.getOriginalFilename());
-
         if (Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
             throw new FileStorageException("Название трека не может быть пустым");
         }
+        if (!Objects.requireNonNull(file.getContentType()).startsWith("audio/")) {
+            throw new FileStorageException("Загружен не аудиофайл");
+        }
+        String fileName = StringUtils.cleanPath(UUID.randomUUID() + "_" + file.getOriginalFilename());
         try {
-            // Определение продолжительности трека
-            long duration = getDurationWithMp3Spi(file.getResource().getFile());
-            if (duration < 30000) {
-                throw new FileStorageException("Продолжительность трека должна быть больше 30 секунд");
-            }
             // Копирование файла в папку хранения
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             log.info(String.format("Сохранение файла с названием: %s", fileName));
-
+            // Определение продолжительности трека
+            long duration = getDurationWithMp3Spi(targetLocation.toFile());
+            if (duration < 30000) {
+                throw new FileStorageException("Продолжительность трека должна быть больше 30 секунд");
+            }
             return Track.builder()
                     .fileName(fileName)
                     .producer(producer)
@@ -73,7 +74,7 @@ public class FileStorageService {
         }
     }
 
-    public void removeFile(String fileName) throws IOException {
+    public void removeFile(String fileName) {
         Path targetLocation = this.fileStorageLocation.resolve(fileName);
         log.info(String.format("Удаление файла с навзанием: %s", fileName));
         try {

@@ -38,7 +38,7 @@ public class TracksController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCER')")
-    @PostMapping("/{trackId}/remove/{userId}")
+    @DeleteMapping("/{trackId}/remove/{userId}")
     public ResponseEntity<Void> removeTrack(@PathVariable @Positive Long trackId,
                                             @PathVariable @Positive Long userId) {
         tracksService.removeTrack(trackId, userId);

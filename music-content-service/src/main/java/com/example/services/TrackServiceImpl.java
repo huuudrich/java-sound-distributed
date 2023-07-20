@@ -63,6 +63,7 @@ public class TrackServiceImpl implements TracksService {
         Track track = tracksRepository.findTrackByIdAndProducerId(trackId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Track with id: %d not found and producerId: %d", trackId, userId)));
         tracksRepository.delete(track);
+        fileStorageService.removeFile(track.getFileName());
     }
 
     @Override
