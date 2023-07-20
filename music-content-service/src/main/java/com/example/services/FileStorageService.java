@@ -73,6 +73,17 @@ public class FileStorageService {
         }
     }
 
+    public void removeFile(String fileName) throws IOException {
+        Path targetLocation = this.fileStorageLocation.resolve(fileName);
+        log.info(String.format("Удаление файла с навзанием: %s", fileName));
+        try {
+            Files.delete(targetLocation);
+        } catch (IOException e) {
+            throw new FileStorageException("Не удалось удалить файл " + fileName, e);
+        }
+
+    }
+
     public long getDurationWithMp3Spi(File file) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
         if (fileFormat instanceof TAudioFileFormat) {

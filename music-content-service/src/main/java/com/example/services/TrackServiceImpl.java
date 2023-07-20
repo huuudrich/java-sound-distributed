@@ -57,6 +57,20 @@ public class TrackServiceImpl implements TracksService {
 
         return TracksMapper.INSTANCE.listTrackToTrackDto(tracksRepository.saveAll(tracks));
     }
+    @Transactional
+    @Override
+    public void removeTrack(Long trackId, Long userId) {
+        Track track = tracksRepository.findTrackByIdAndProducerId(trackId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Track with id: %d not found and producerId: %d", trackId, userId)));
+        tracksRepository.delete(track);
+    }
+
+    @Override
+    public List<TrackDto> getTracks(Long userId) {
+        User producer = findUserById(userId);
+
+        return TracksMapper.INSTANCE.listTrackToTrackDto(tracksRepository.getTracksByProducer(producer));
+    }
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
