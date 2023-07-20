@@ -15,7 +15,7 @@ import java.util.Date;
 public class TrackDto {
     Long id;
     String title;
-    String producerName;
+    String producer;
     Date uploadDate;
     Album album;
 }

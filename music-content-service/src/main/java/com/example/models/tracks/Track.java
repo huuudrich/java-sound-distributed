@@ -29,9 +29,9 @@ public class Track implements Serializable {
     @JoinColumn(name = "upload_date")
     @Builder.Default
     Date uploadDate = new Date();
-    @ManyToOne
-    @JoinColumn(name = "album_id")
-    Album album;
+    //@ManyToOne
+    //@JoinColumn(name = "album_id")
+    //Album album;
     long duration;
     @JoinColumn(name = "file_name", unique = true)
     String fileName;

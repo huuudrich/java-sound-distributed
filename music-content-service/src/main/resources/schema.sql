@@ -24,3 +24,14 @@ CREATE TABLE IF NOT EXISTS users_roles
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (role_id) REFERENCES roles (id)
 );
+
+CREATE TABLE IF NOT EXISTS tracks
+(
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title       VARCHAR(100) NOT NULL UNIQUE,
+    producer_id BIGINT,
+    upload_date TIMESTAMP,
+    duration    BIGINT,
+    file_name   VARCHAR(255),
+    FOREIGN KEY (producer_id) REFERENCES users (id)
+)
